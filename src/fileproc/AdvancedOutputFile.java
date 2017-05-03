@@ -28,6 +28,23 @@ public class AdvancedOutputFile<T> {
         this.filename = filename;
     }
 
+    public AdvancedOutputFile(double[][] potential, Relaxation.Box box, double delta, String filename) {
+        this.sections = new ArrayList<>();
+
+        for (double i = box.getRangeX().getStart(); i <= box.getRangeX().getEnd(); i += delta) {
+            Section<Double> section = new Section<>();
+            for (double j = box.getRangeY().getStart(); j <= box.getRangeY().getEnd(); j += delta) {
+                int indexX = (int) ((i + box.getRangeX().getEnd())/delta);
+                int indexY = (int) ((j + box.getRangeY().getEnd())/delta);
+
+                section.addRecord(new Record<>(i, j, potential[indexX][indexY]));
+            }
+            sections.add(section);
+        }
+
+        this.filename = filename;
+    }
+
     public String getFilename() {
         return filename;
     }

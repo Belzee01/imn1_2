@@ -1,5 +1,8 @@
 package poisson;
 
+import java.util.Arrays;
+import java.util.HashMap;
+
 public class Relaxation {
 
     private Double deltaX;
@@ -11,19 +14,23 @@ public class Relaxation {
     private int pointsCounterX;
     private int pointsCounterY;
 
+    private HashMap<String, double[][]> potentialByJumpValues;
+
     private int jump;
 
     public Relaxation(Double deltaX, Double deltaY, Box bindingBox, double omega) {
         this.deltaX = deltaX;
         this.deltaY = deltaY;
         this.bindingBox = bindingBox;
-        this.potential = new double[193][193];
         this.omega = omega;
 
         this.pointsCounterX = (int) ((this.bindingBox.getRangeX().getEnd() - this.bindingBox.getRangeX().getStart()) / deltaX) + 1;
         this.pointsCounterY = (int) ((this.bindingBox.getRangeY().getEnd() - this.bindingBox.getRangeY().getStart()) / deltaY) + 1;
 
+        this.potential = new double[this.pointsCounterX][this.pointsCounterY];
+
         this.jump = 1;
+        this.potentialByJumpValues = new HashMap<>();
     }
 
     /**
@@ -39,13 +46,15 @@ public class Relaxation {
         this.deltaX = deltaX;
         this.deltaY = deltaY;
         this.bindingBox = bindingBox;
-        this.potential = new double[193][193];
         this.omega = omega;
 
         this.pointsCounterX = (int) ((this.bindingBox.getRangeX().getEnd() - this.bindingBox.getRangeX().getStart()) / deltaX) + 1;
         this.pointsCounterY = (int) ((this.bindingBox.getRangeY().getEnd() - this.bindingBox.getRangeY().getStart()) / deltaY) + 1;
 
+        this.potential = new double[this.pointsCounterX][this.pointsCounterY];
+
         this.jump = jump;
+        this.potentialByJumpValues = new HashMap<>();
     }
 
     public Double signalDensity(double x, double y) {
@@ -94,7 +103,6 @@ public class Relaxation {
 
             diff = Math.abs(integralValue - temp);
             temp = integralValue;
-            System.out.println("Diff : " + diff);
         } while (diff > 0.00000001);
 
         return temp;
@@ -106,21 +114,39 @@ public class Relaxation {
      * @return
      */
     public double calculateIntegralFromMultiWireRelaxation() {
-        double current = calculateIntegral();
-
+        double current = 0.0;
         do {
+            System.out.println("K = " + jump);
+            System.out.println("Integral value : " + calculateIntegral());
+            double[][] temp = Arrays.stream(this.potential).map(double[]::clone).toArray(double[][]::new);
+            this.potentialByJumpValues.put(String.valueOf(this.jump), temp);
+
+            evaluateNewWirePotential();
             this.jump = jump/2;
-            evaluateNewWire();
-
-            double integralForJump = calculateIntegral();
-
-        }while (this.jump != 1);
+        }while (this.jump != 0);
 
         return current;
     }
 
-    public void evaluateNewWire() {
+    /**
+     * Oblicza wartosci potencjalu dla punktow nie obliczanych dla danego skoku k
+     */
+    public void evaluateNewWirePotential() {
+        for (double i = this.bindingBox.getRangeX().getStart() + jump*deltaX; i <= this.bindingBox.getRangeX().getEnd() - jump * this.deltaX; i += jump * this.deltaX) {
+            for (double j = this.bindingBox.getRangeY().getStart() + jump*deltaY; j <= this.bindingBox.getRangeY().getEnd() - jump * this.deltaY; j += jump * this.deltaY) {
+                int indexX = getIndexX(i);
+                int indexY = getIndexY(j);
 
+                this.potential[indexX + jump/2][indexY + jump/2] =
+                        (potential[indexX][indexY]+potential[indexX+jump][indexY]+
+                                potential[indexX][indexY+jump]+potential[indexX+jump][indexY+jump])/4.0;
+
+                potential[indexX][indexY+jump/2] = (potential[indexX][indexY]+potential[indexX][indexY+jump])/2.0;
+                potential[indexX+jump/2][indexY] = (potential[indexX][indexY]+potential[indexX+jump][indexY])/2.0;
+                potential[indexX+jump][indexY+jump/2] = (potential[indexX+jump][indexY]+potential[indexX+jump][indexY+jump])/2.0;
+                potential[indexX+jump/2][indexY+jump] = (potential[indexX][indexY+jump]+potential[indexX+jump][indexY+jump])/2.0;
+            }
+        }
     }
 
     private double getPotentialAtPoint(double x, double y) {
@@ -161,6 +187,10 @@ public class Relaxation {
 
     public Double getDeltaY() {
         return deltaY;
+    }
+
+    public HashMap<String, double[][]> getPotentialByJumpValues() {
+        return this.potentialByJumpValues;
     }
 
     public Box getBindingBox() {

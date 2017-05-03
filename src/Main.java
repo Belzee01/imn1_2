@@ -2,6 +2,8 @@ import fileproc.AdvancedOutputFile;
 import fileproc.CustomFileWriter;
 import poisson.Relaxation;
 
+import java.util.Map;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -14,10 +16,13 @@ public class Main {
                 1.0, 32
         );
 
-        System.out.println("\nIntegral value : " +  relaxation.calculateIntegral());
+        System.out.println("\nIntegral value : " +  relaxation.calculateIntegralFromMultiWireRelaxation());
 
-        CustomFileWriter.writeToFile(new AdvancedOutputFile(relaxation, "wariant1a.dat"));
+//        CustomFileWriter.writeToFile(new AdvancedOutputFile(relaxation, "wariant1a.dat"));
 
-        System.out.println("Hello World!");
+        relaxation.getPotentialByJumpValues().forEach((key, value) -> {
+            CustomFileWriter.writeToFile(new AdvancedOutputFile(
+                    value, relaxation.getBindingBox(), relaxation.getDeltaX(),"wariant1a_pot_k"+ key +".dat"));
+        });
     }
 }
