@@ -19,7 +19,9 @@ public class Main {
         System.out.println("\nIntegral value : " +  relaxation.calculateIntegralFromMultiWireRelaxation());
 
 //        CustomFileWriter.writeToFile(new AdvancedOutputFile(relaxation, "wariant1a.dat"));
-
+        relaxation.fillDensityMatrix();
+        CustomFileWriter.writeToFile(new AdvancedOutputFile(
+                relaxation.getDensity(), relaxation.getBindingBox(), relaxation.getDeltaX(),"wariant1a_density.dat"));
         relaxation.getPotentialByJumpValues().forEach((key, value) -> {
             CustomFileWriter.writeToFile(new AdvancedOutputFile(
                     value, relaxation.getBindingBox(), relaxation.getDeltaX(),"wariant1a_pot_k"+ key +".dat"));

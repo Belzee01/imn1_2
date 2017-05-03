@@ -9,6 +9,7 @@ public class Relaxation {
     private Double deltaY;
     private Box bindingBox;
     private double[][] potential;
+    private double[][] density;
     private double omega;
 
     private int pointsCounterX;
@@ -28,6 +29,7 @@ public class Relaxation {
         this.pointsCounterY = (int) ((this.bindingBox.getRangeY().getEnd() - this.bindingBox.getRangeY().getStart()) / deltaY) + 1;
 
         this.potential = new double[this.pointsCounterX][this.pointsCounterY];
+        this.density = new double[this.pointsCounterX][this.pointsCounterY];
 
         this.jump = 1;
         this.potentialByJumpValues = new HashMap<>();
@@ -52,9 +54,21 @@ public class Relaxation {
         this.pointsCounterY = (int) ((this.bindingBox.getRangeY().getEnd() - this.bindingBox.getRangeY().getStart()) / deltaY) + 1;
 
         this.potential = new double[this.pointsCounterX][this.pointsCounterY];
+        this.density = new double[this.pointsCounterX][this.pointsCounterY];
 
         this.jump = jump;
         this.potentialByJumpValues = new HashMap<>();
+    }
+
+    public void fillDensityMatrix() {
+        for (double i = this.bindingBox.getRangeX().getStart() + jump*deltaX; i <= this.bindingBox.getRangeX().getEnd() - jump * this.deltaX; i += jump * this.deltaX) {
+            for (double j = this.bindingBox.getRangeY().getStart() + jump*deltaY; j <= this.bindingBox.getRangeY().getEnd() - jump * this.deltaY; j += jump * this.deltaY) {
+                int indexX = getIndexX(i);
+                int indexY = getIndexY(j);
+
+                this.density[indexX][indexY] = signalDensity(i, j);
+            }
+        }
     }
 
     public Double signalDensity(double x, double y) {
@@ -124,7 +138,7 @@ public class Relaxation {
             evaluateNewWirePotential();
             this.jump = jump/2;
         }while (this.jump != 0);
-
+        this.jump = 1;
         return current;
     }
 
@@ -155,6 +169,10 @@ public class Relaxation {
         return (1.0 - this.omega) * this.potential[i][j] +
                 this.omega * (this.potential[i + this.jump][j] + potential[i - this.jump][j] + potential[i][j + this.jump]
                         + potential[i][j - jump] + signalDensity(x, y) * Math.pow(this.jump * deltaX, 2.0)) / 4.0;
+    }
+
+    public double[][] getDensity() {
+        return this.density;
     }
 
     private int getIndexX(double x) {

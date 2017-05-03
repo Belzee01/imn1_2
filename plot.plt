@@ -1,7 +1,7 @@
 set terminal png size 800,600
-set out "zadanie1a.png"
+set out "density1a.png"
 set pm3d
-splot "wariant1a.dat" with pm3d
+splot "wariant1a_density.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_32.png"
