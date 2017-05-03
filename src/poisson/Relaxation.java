@@ -53,8 +53,8 @@ public class Relaxation {
     }
 
     public void calculatePotential() {
-        for (double i = this.bindingBox.getRangeX().getStart() + deltaX; i < this.bindingBox.getRangeX().getEnd(); i += jump * this.deltaX) {
-            for (double j = this.bindingBox.getRangeY().getStart() + deltaY; j < this.bindingBox.getRangeY().getEnd(); j += jump * this.deltaY) {
+        for (double i = this.bindingBox.getRangeX().getStart() + jump*deltaX; i <= this.bindingBox.getRangeX().getEnd() - jump * this.deltaX; i += jump * this.deltaX) {
+            for (double j = this.bindingBox.getRangeY().getStart() + jump*deltaY; j <= this.bindingBox.getRangeY().getEnd() - jump * this.deltaY; j += jump * this.deltaY) {
                 int indexX = getIndexX(i);
                 int indexY = getIndexY(j);
 
@@ -66,13 +66,13 @@ public class Relaxation {
     public double calculateIntegralAtIteration() {
         double a = 0.0;
 
-        for (double i = this.bindingBox.getRangeX().getStart()+deltaX; i < this.bindingBox.getRangeX().getEnd(); i += jump * this.deltaX) {
-            for (double j = this.bindingBox.getRangeY().getStart()+deltaY; j < this.bindingBox.getRangeY().getEnd(); j += jump * this.deltaY) {
+        for (double i = this.bindingBox.getRangeX().getStart(); i <= this.bindingBox.getRangeX().getEnd() - jump * this.deltaX; i += jump * this.deltaX) {
+            for (double j = this.bindingBox.getRangeY().getStart(); j <= this.bindingBox.getRangeY().getEnd() - jump * this.deltaY; j += jump * this.deltaY) {
                 int indexX = getIndexX(i);
                 int indexY = getIndexY(j);
 
-                a += this.deltaX * this.deltaY * (0.5 * (Math.pow(differentialForX(i, j), 2.0) + Math.pow(differentialForY(i, j), 2.0)) -
-                        Math.pow(jump*deltaX, 2.0) * this.signalDensity(i, j) * this.potential[indexX][indexY]);
+                a += Math.pow(jump, 2.0) * this.deltaX * this.deltaY * (0.5 * (Math.pow(differentialForX(i, j), 2.0) + Math.pow(differentialForY(i, j), 2.0)) -
+                         this.signalDensity(i, j) * this.potential[indexX][indexY]);
             }
         }
         calculatePotential();
@@ -80,6 +80,11 @@ public class Relaxation {
         return a;
     }
 
+    /**
+     * Zwraca wartosc calki z pojedynczego oszacowania zbieznosci calki
+     * Uzywac dla parametru k = 1 - lokalna relaksacja punktowa
+     * @return
+     */
     public double calculateIntegral() {
         double temp = calculateIntegralAtIteration();
         double diff = 0.0;
@@ -93,6 +98,29 @@ public class Relaxation {
         } while (diff > 0.00000001);
 
         return temp;
+    }
+
+    /**
+     * Zwraca relaksacje wielosiatkowa, zmniejsza o polowe wartosc paramteru k do momentu k == 1
+     * Uzywac dla lokalnej relaksacji wielosiatkowej k > 1
+     * @return
+     */
+    public double calculateIntegralFromMultiWireRelaxation() {
+        double current = calculateIntegral();
+
+        do {
+            this.jump = jump/2;
+            evaluateNewWire();
+
+            double integralForJump = calculateIntegral();
+
+        }while (this.jump != 1);
+
+        return current;
+    }
+
+    public void evaluateNewWire() {
+
     }
 
     private double getPotentialAtPoint(double x, double y) {
@@ -109,16 +137,6 @@ public class Relaxation {
 
     private int getIndexY(double y) {
         return (int) ((y + this.bindingBox.getRangeY().getEnd()) / this.deltaY);
-    }
-
-    public void printPotential() {
-        for (int i = 0; i < this.pointsCounterX; i++) {
-            System.out.print("[");
-            for (int j = 0; j < this.pointsCounterY; j++) {
-                System.out.print(this.potential[i][j] + " ,");
-            }
-            System.out.println("]");
-        }
     }
 
     private double differentialForX(double x, double y) {
