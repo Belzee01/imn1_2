@@ -1,7 +1,9 @@
 package poisson;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class Relaxation {
 
@@ -16,6 +18,8 @@ public class Relaxation {
     private int pointsCounterY;
 
     private HashMap<String, double[][]> potentialByJumpValues;
+
+    private IterationIntegralContainer integralValueByIterations;
 
     private int jump;
 
@@ -33,6 +37,7 @@ public class Relaxation {
 
         this.jump = 1;
         this.potentialByJumpValues = new HashMap<>();
+        this.integralValueByIterations = new IterationIntegralContainer();
     }
 
     /**
@@ -58,6 +63,7 @@ public class Relaxation {
 
         this.jump = jump;
         this.potentialByJumpValues = new HashMap<>();
+        this.integralValueByIterations = new IterationIntegralContainer();
     }
 
     public void fillDensityMatrix() {
@@ -112,11 +118,18 @@ public class Relaxation {
         double temp = calculateIntegralAtIteration();
         double diff = 0.0;
 
+        int k = 0;
+        if (this.integralValueByIterations.myPairs.size() != 0)
+            k = this.integralValueByIterations.myPairs.get(this.integralValueByIterations.myPairs.size()-1).iteration;
+        this.integralValueByIterations.add(k++, temp);
         do {
             double integralValue = calculateIntegralAtIteration();
+            this.integralValueByIterations.add(k, integralValue);
 
             diff = Math.abs(integralValue - temp);
             temp = integralValue;
+            k++;
+            System.out.println("Iteration : " + k);
         } while (diff > 0.00000001);
 
         return temp;
@@ -127,19 +140,31 @@ public class Relaxation {
      * Uzywac dla lokalnej relaksacji wielosiatkowej k > 1
      * @return
      */
-    public double calculateIntegralFromMultiWireRelaxation() {
+    public String calculateIntegralFromMultiWireRelaxation() {
         double current = 0.0;
+        List<IterationIntegralContainer> iterationIntegralContainers = new ArrayList<>();
         do {
             System.out.println("K = " + jump);
             System.out.println("Integral value : " + calculateIntegral());
             double[][] temp = Arrays.stream(this.potential).map(double[]::clone).toArray(double[][]::new);
             this.potentialByJumpValues.put(String.valueOf(this.jump), temp);
+            iterationIntegralContainers.add(this.integralValueByIterations);
 
             evaluateNewWirePotential();
             this.jump = jump/2;
         }while (this.jump != 0);
         this.jump = 1;
-        return current;
+        return convertList(iterationIntegralContainers);
+    }
+
+    private String convertList(List<IterationIntegralContainer> iterationIntegralContainers) {
+        StringBuilder sb = new StringBuilder();
+
+        for (IterationIntegralContainer i : iterationIntegralContainers) {
+            sb.append(i).append("\n");
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -175,6 +200,10 @@ public class Relaxation {
         return this.density;
     }
 
+    public double getOmega() {
+        return omega;
+    }
+
     private int getIndexX(double x) {
         return (int) ((x + this.bindingBox.getRangeX().getEnd()) / this.deltaX);
     }
@@ -205,6 +234,10 @@ public class Relaxation {
 
     public Double getDeltaY() {
         return deltaY;
+    }
+
+    public IterationIntegralContainer getIntegralValueByIterations() {
+        return integralValueByIterations;
     }
 
     public HashMap<String, double[][]> getPotentialByJumpValues() {
@@ -248,6 +281,45 @@ public class Relaxation {
 
         public Double getEnd() {
             return this.end;
+        }
+    }
+
+    public static class MyPair {
+        private Integer iteration;
+
+        private Double value;
+
+        public MyPair(Integer iteration, Double value) {
+            this.iteration = iteration;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return iteration + "\t" + value;
+        }
+    }
+
+    public static class IterationIntegralContainer {
+        private List<MyPair> myPairs;
+
+        public IterationIntegralContainer() {
+            this.myPairs = new ArrayList<>();
+        }
+
+        public void add(Integer iteration, Double value) {
+            myPairs.add(new MyPair(iteration, value));
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            for (MyPair pair : myPairs) {
+                sb.append(pair).append("\n");
+            }
+
+            return sb.toString();
         }
     }
 }
