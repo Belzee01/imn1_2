@@ -15,6 +15,8 @@ plot "wariant1aOmega0.6.dat" using 1:2 title 'Omega 0.6' with lines, \
     "wariant1aOmega1.99.dat" using 1:2 title 'Omega 1.99' with lines
 
 #Zadanie 2
+unset ylabel
+unset xlabel
 unset logscale
 set terminal png size 800,600
 set out "density1a.png"

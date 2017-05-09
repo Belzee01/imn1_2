@@ -1,13 +1,10 @@
 package fileproc;
 
-import poisson.Relaxation;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
-import static poisson.Relaxation.*;
+import static poisson.WariantA.*;
 
 public class CustomFileWriter {
 

@@ -1,6 +1,6 @@
 package fileproc;
 
-import poisson.Relaxation;
+import poisson.WariantA;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +11,16 @@ public class AdvancedOutputFile<T> {
 
     private String filename;
 
-    public AdvancedOutputFile(Relaxation relaxation, String filename) {
+    public AdvancedOutputFile(WariantA wariantA, String filename) {
         this.sections = new ArrayList<>();
 
-        for (double i = relaxation.getBindingBox().getRangeX().getStart(); i <= relaxation.getBindingBox().getRangeX().getEnd(); i += relaxation.getDeltaX()) {
+        for (double i = wariantA.getBindingBox().getRangeX().getStart(); i <= wariantA.getBindingBox().getRangeX().getEnd(); i += wariantA.getDeltaX()) {
             Section<Double> section = new Section<>();
-            for (double j = relaxation.getBindingBox().getRangeY().getStart(); j <= relaxation.getBindingBox().getRangeY().getEnd(); j += relaxation.getDeltaY()) {
-                int indexX = (int) ((i + relaxation.getBindingBox().getRangeX().getEnd())/relaxation.getDeltaX());
-                int indexY = (int) ((j + relaxation.getBindingBox().getRangeY().getEnd())/relaxation.getDeltaY());
+            for (double j = wariantA.getBindingBox().getRangeY().getStart(); j <= wariantA.getBindingBox().getRangeY().getEnd(); j += wariantA.getDeltaY()) {
+                int indexX = (int) ((i + wariantA.getBindingBox().getRangeX().getEnd())/ wariantA.getDeltaX());
+                int indexY = (int) ((j + wariantA.getBindingBox().getRangeY().getEnd())/ wariantA.getDeltaY());
 
-                section.addRecord(new Record<>(i, j, relaxation.getPotential()[indexX][indexY]));
+                section.addRecord(new Record<>(i, j, wariantA.getPotential()[indexX][indexY]));
             }
             sections.add(section);
         }
@@ -28,7 +28,7 @@ public class AdvancedOutputFile<T> {
         this.filename = filename;
     }
 
-    public AdvancedOutputFile(double[][] potential, Relaxation.Box box, double delta, String filename) {
+    public AdvancedOutputFile(double[][] potential, WariantA.Box box, double delta, String filename) {
         this.sections = new ArrayList<>();
 
         for (double i = box.getRangeX().getStart(); i <= box.getRangeX().getEnd(); i += delta) {

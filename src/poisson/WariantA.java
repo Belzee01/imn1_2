@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class Relaxation {
+public class WariantA {
 
     private Double deltaX;
     private Double deltaY;
@@ -23,7 +23,7 @@ public class Relaxation {
 
     private int jump;
 
-    public Relaxation(Double deltaX, Double deltaY, Box bindingBox, double omega) {
+    public WariantA(Double deltaX, Double deltaY, Box bindingBox, double omega) {
         this.deltaX = deltaX;
         this.deltaY = deltaY;
         this.bindingBox = bindingBox;
@@ -49,7 +49,7 @@ public class Relaxation {
      * @param omega
      * @param jump       okresla wielkosc skoku na siatce. Dla relakasacji punktowej jest to 1
      */
-    public Relaxation(Double deltaX, Double deltaY, Box bindingBox, double omega, int jump) {
+    public WariantA(Double deltaX, Double deltaY, Box bindingBox, double omega, int jump) {
         this.deltaX = deltaX;
         this.deltaY = deltaY;
         this.bindingBox = bindingBox;
