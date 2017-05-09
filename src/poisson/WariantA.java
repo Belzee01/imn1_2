@@ -294,6 +294,14 @@ public class WariantA {
             this.value = value;
         }
 
+        public Integer getIteration() {
+            return iteration;
+        }
+
+        public Double getValue() {
+            return value;
+        }
+
         @Override
         public String toString() {
             return iteration + "\t" + value;
@@ -320,6 +328,10 @@ public class WariantA {
             }
 
             return sb.toString();
+        }
+
+        public List<MyPair> getMyPairs() {
+            return myPairs;
         }
     }
 }

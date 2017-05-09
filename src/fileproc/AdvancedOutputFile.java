@@ -45,6 +45,20 @@ public class AdvancedOutputFile<T> {
         this.filename = filename;
     }
 
+    public AdvancedOutputFile(double[][] potential, int numberOfPoints, String filename) {
+        this.sections = new ArrayList<>();
+
+        for (int i = 0; i <= numberOfPoints; i ++) {
+            Section<Double> section = new Section<>();
+            for (int j =0; j <= numberOfPoints; j ++) {
+                section.addRecord(new Record<>((double)i, (double)j, potential[i][j]));
+            }
+            sections.add(section);
+        }
+
+        this.filename = filename;
+    }
+
     public String getFilename() {
         return filename;
     }
