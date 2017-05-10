@@ -18,39 +18,51 @@ plot "wariant1aOmega0.6.dat" using 1:2 title 'Omega 0.6' with lines, \
 unset ylabel
 unset xlabel
 unset logscale
+set view map
 set terminal png size 800,600
 set out "density1a.png"
 set pm3d
-splot "wariant1a_density.dat" with pm3d
+splot "wariant1a_density.dat" with pm3d t 'Gestosc'
+
+set terminal png size 800,600
+set out "potential.png"
+set pm3d
+splot "wariant1a_pot.dat" with pm3d t 'Potencjal po relaksacji'
 
 set terminal png size 800,600
 set out "pot_k_32.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k32.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_16.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k16.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_8.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k8.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_4.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k4.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_2.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k2.dat" with pm3d
 
 set terminal png size 800,600
 set out "pot_k_1.png"
 set pm3d
+set view map
 splot "wariant1a_pot_k1.dat" with pm3d
 
 set terminal png size 800,600
@@ -60,4 +72,4 @@ set xtic auto
 set ytic auto
 set ylabel "Wartosc calki a"
 set xlabel "Iteracje"
-plot "wariant1a_calka.dat" using 1:2 title 'Omega 0.6' with lines
+plot for [IDX=0:6] 'wariant1a_calka.dat' i IDX u 1:2 w lines title columnheader(1)

@@ -30,6 +30,7 @@ all: $(addprefix $(BIN), $(CLASS_FILES))
 
 clean : 
 	rm -rf $(BIN)*
+	rm *.png *.dat
 
 run : 
 	java -cp $(BIN) Main

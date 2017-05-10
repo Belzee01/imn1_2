@@ -17,6 +17,8 @@ public class WariantA {
     private int pointsCounterX;
     private int pointsCounterY;
 
+    private int helperCounter = 0;
+
     private HashMap<String, double[][]> potentialByJumpValues;
 
     private IterationIntegralContainer integralValueByIterations;
@@ -118,18 +120,17 @@ public class WariantA {
         double temp = calculateIntegralAtIteration();
         double diff = 0.0;
 
-        int k = 0;
-        if (this.integralValueByIterations.myPairs.size() != 0)
-            k = this.integralValueByIterations.myPairs.get(this.integralValueByIterations.myPairs.size()-1).iteration;
-        this.integralValueByIterations.add(k++, temp);
+        this.integralValueByIterations = new IterationIntegralContainer();
+        int k = helperCounter;
+        this.integralValueByIterations.add(helperCounter++, temp);
         do {
             double integralValue = calculateIntegralAtIteration();
-            this.integralValueByIterations.add(k, integralValue);
+            this.integralValueByIterations.add(helperCounter, integralValue);
 
             diff = Math.abs(integralValue - temp);
             temp = integralValue;
-            k++;
-            System.out.println("Iteration : " + k);
+            helperCounter++;
+            System.out.println("Iteration : " + helperCounter);
         } while (diff > 0.00000001);
 
         return temp;
@@ -146,9 +147,10 @@ public class WariantA {
         do {
             System.out.println("K = " + jump);
             System.out.println("Integral value : " + calculateIntegral());
-            double[][] temp = Arrays.stream(this.potential).map(double[]::clone).toArray(double[][]::new);
-            this.potentialByJumpValues.put(String.valueOf(this.jump), temp);
             iterationIntegralContainers.add(this.integralValueByIterations);
+            double[][] temp = Arrays.stream(this.potential).map(double[]::clone).toArray(double[][]::new);
+            temp = optimizeByJump(temp);
+            this.potentialByJumpValues.put(String.valueOf(this.jump), temp);
 
             evaluateNewWirePotential();
             this.jump = jump/2;
@@ -157,11 +159,23 @@ public class WariantA {
         return convertList(iterationIntegralContainers);
     }
 
+    private double[][] optimizeByJump(double[][] temp) {
+        double[][] val = new double[this.pointsCounterX/jump +1][this.pointsCounterX/jump +1];
+        for (int i = 0, k = 0; i < this.pointsCounterX; i += jump, k ++) {
+            for (int j = 0, z = 0; j < this.pointsCounterY; j += jump, z++) {
+                val[k][z] = temp[i][j];
+            }
+        }
+        return val;
+    }
+
     private String convertList(List<IterationIntegralContainer> iterationIntegralContainers) {
         StringBuilder sb = new StringBuilder();
 
+        int tempK = 32;
         for (IterationIntegralContainer i : iterationIntegralContainers) {
-            sb.append(i).append("\n");
+            sb.append(String.format("\"k = %s\"",tempK)).append("\n").append(i).append("\n").append("\n");
+            tempK = tempK / 2;
         }
 
         return sb.toString();

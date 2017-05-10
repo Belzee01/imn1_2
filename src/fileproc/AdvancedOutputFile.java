@@ -28,6 +28,23 @@ public class AdvancedOutputFile<T> {
         this.filename = filename;
     }
 
+    public AdvancedOutputFile(double[][] potential, WariantA.Box box, int jump, double delta, String filename) {
+        this.sections = new ArrayList<>();
+
+        for (double i = box.getRangeX().getStart(); i <= box.getRangeX().getEnd(); i += jump*delta) {
+            Section<Double> section = new Section<>();
+            for (double j = box.getRangeY().getStart(); j <= box.getRangeY().getEnd(); j += jump*delta) {
+                int indexX = (int) ((i + box.getRangeX().getEnd())/delta);
+                int indexY = (int) ((j + box.getRangeY().getEnd())/delta);
+
+                section.addRecord(new Record<>(i, j, potential[indexX/jump][indexY/jump]));
+            }
+            sections.add(section);
+        }
+
+        this.filename = filename;
+    }
+
     public AdvancedOutputFile(double[][] potential, WariantA.Box box, double delta, String filename) {
         this.sections = new ArrayList<>();
 

@@ -29,6 +29,12 @@ public class Main {
 
             CustomFileWriter.writeToFile(r.getIntegralValueByIterations(), "wariant1aOmega" + r.getOmega() + ".dat");
         });
+        CustomFileWriter.writeToFile(
+                new AdvancedOutputFile(
+                        wariantAS[0].getPotential(), wariantAS[0].getBindingBox(), wariantAS[0].getDeltaX(), "wariant1a_pot.dat"
+                )
+        );
+
 
         WariantA wariantA = new WariantA(0.75, 0.75, box, 1.0, 32);
 
@@ -40,7 +46,7 @@ public class Main {
 
         wariantA.getPotentialByJumpValues().forEach((key, value) -> {
             CustomFileWriter.writeToFile(new AdvancedOutputFile(
-                    value, wariantA.getBindingBox(), wariantA.getDeltaX(), "wariant1a_pot_k" + key + ".dat"));
+                    value, wariantA.getBindingBox(), Integer.valueOf(key), wariantA.getDeltaX(), "wariant1a_pot_k" + key + ".dat"));
         });
     }
 
@@ -116,7 +122,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-//        executeWariantA();
-        executeWariantB();
+        executeWariantA();
+//        executeWariantB();
     }
 }
